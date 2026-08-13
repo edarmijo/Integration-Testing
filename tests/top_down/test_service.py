@@ -61,7 +61,11 @@ def test_calculate_total_aplica_iva():
 #   - `calculate_total(100.0, 0)` y `calculate_total(100.0, -1)` deben lanzar
 #     `ValueError`. Usa `with pytest.raises(ValueError): ...`.
 def test_calculate_total_cantidad_invalida():
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    service, _, _ = make_service()
+    with pytest.raises(ValueError):
+        service.calculate_total(unit_price=100.0, quantity=0)
+    with pytest.raises(ValueError):
+        service.calculate_total(unit_price=100.0, quantity=-1)
 
 
 # TODO 2: Stock insuficiente.
