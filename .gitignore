@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Pruebas / cobertura / mutación
+.pytest_cache/
+.mutmut-cache
+mutmut-report.xml
+pytest-report.xml
+html/
+
+# Sistema
+.DS_Store
+
+# Config local de Claude Code (no pertenece al taller)
+.claude/
+
+# Config local de editores (PyCharm/IntelliJ, VS Code)
+.idea/
+.vscode/

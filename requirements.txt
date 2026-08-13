@@ -1,0 +1,14 @@
+# --- Framework de pruebas ---
+pytest==7.4.4
+
+# --- Mocking para pruebas Top-Down (Integrantes 1 y 2) ---
+pytest-mock==3.12.0
+
+# --- Cliente HTTP real usado por la pasarela de pagos ---
+requests==2.31.0
+
+# --- Interceptor de peticiones HTTP para pruebas Bottom-Up (Integrante 4) ---
+requests-mock==1.11.0
+
+# --- Mutation testing para la autoevaluación (80 % de la nota) ---
+mutmut==2.4.4
