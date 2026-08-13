@@ -85,7 +85,17 @@ def test_fake_db_actualiza_stock(fake_db):
 #       * ese id aparezca dentro de `fake_db.orders`,
 #       * al guardar un segundo pedido, su id sea distinto del primero.
 def test_fake_db_guarda_pedidos_con_id_unico(fake_db):
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    order_1 = {"product_id": "SKU-1", "quantity": 2}
+    order_2 = {"product_id": "SKU-2", "quantity": 1}
+
+    order_id_1 = fake_db.save_order(order_1)
+    order_id_2 = fake_db.save_order(order_2)
+
+    assert order_id_1
+    assert order_id_2
+    assert order_id_1 in fake_db.orders
+    assert order_id_2 in fake_db.orders
+    assert order_id_2 != order_id_1
 
 
 # TODO 3 (OPCIONAL — NO cuenta para la nota): decide qué hacer ante un producto
