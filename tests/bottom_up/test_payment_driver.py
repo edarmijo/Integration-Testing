@@ -54,7 +54,17 @@ def test_charge_aprobado_200(requests_mock):
 #   - Verifica que `resultado["approved"] is False` y que se propaga el "reason".
 #   - RECUERDA: un 402 NO es una excepción, es una respuesta de negocio.
 def test_charge_rechazado_402(requests_mock):
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    gateway = make_gateway()
+    requests_mock.post(
+        "https://pagos.test/api/v1/charges",
+        status_code=402,
+        json={"reason": "insufficient_funds"},
+    )
+
+    resultado = gateway.charge("tok_visa", 232.0)
+
+    assert resultado["approved"] is False
+    assert resultado["reason"] == "insufficient_funds"
 
 
 # TODO 2: Timeout de red.
@@ -62,19 +72,44 @@ def test_charge_rechazado_402(requests_mock):
 #   - Verifica que `gateway.charge(...)` lanza `PaymentGatewayError`
 #     (usa `with pytest.raises(PaymentGatewayError): ...`).
 def test_charge_timeout(requests_mock):
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    gateway = make_gateway()
+    requests_mock.post(
+        "https://pagos.test/api/v1/charges",
+        exc=requests.exceptions.Timeout,
+    )
+
+    with pytest.raises(PaymentGatewayError):
+        gateway.charge("tok_visa", 232.0)
 
 
 # TODO 3: Respuesta HTTP inesperada (p. ej. 500).
 #   - status_code=500. Verifica que se lanza `PaymentGatewayError`.
 def test_charge_error_servidor_500(requests_mock):
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    gateway = make_gateway()
+    requests_mock.post(
+        "https://pagos.test/api/v1/charges",
+        status_code=500,
+    )
+
+    with pytest.raises(PaymentGatewayError):
+        gateway.charge("tok_visa", 232.0)
 
 
 # TODO 4 (OPCIONAL — NO cuenta para la nota): verifica el CUERPO enviado. Si
 # quieres practicar de más, descomenta la función de abajo y complétala. Tras un
 # cobro, inspecciona `requests_mock.last_request.json()` y comprueba que contiene
 # "card_token" y "amount" con los valores correctos.
-#
-# def test_charge_envia_payload_correcto(requests_mock):
-#     ...
+
+def test_charge_envia_payload_correcto(requests_mock):
+    gateway = make_gateway()
+    requests_mock.post(
+        "https://pagos.test/api/v1/charges",
+        status_code=200,
+        json={"transaction_id": "tx_ABC"},
+    )
+
+    gateway.charge("tok_visa", 232.0)
+
+    payload_enviado = requests_mock.last_request.json()
+    assert payload_enviado["card_token"] == "tok_visa"
+    assert payload_enviado["amount"] == 232.0
