@@ -97,4 +97,8 @@ def test_place_order_pago_rechazado():
 #   - Verifica que se descontó el stock:
 #     `db.update_stock` fue llamado con (product_id, stock - quantity).
 def test_place_order_confirmado_descuenta_stock():
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    service, db, gateway = make_service(stock=10, price=100.0, approved=True)
+    result = service.place_order("PROD-1", quantity=2, card_token="tok_1")
+    assert result["status"] == "CONFIRMED"
+    assert result["total"] == 232.0  # 100 * 2 + 16% IVA
+    db.update_stock.assert_called_once_with("PROD-1", 8)  # 10 - 2
