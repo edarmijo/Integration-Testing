@@ -25,7 +25,7 @@ TÉCNICA
 
 import pytest
 
-from app.order_service import OrderService, PaymentRejectedError
+from app.order_service import OrderService, PaymentRejectedError, OutOfStockError
 from app.payment_gateway import PaymentGateway
 
 # Reutilizamos el Fake construido por el Integrante 3.
@@ -67,7 +67,14 @@ def test_pedido_end_to_end_confirmado(requests_mock, integrated_service):
 #   - CLAVE de integración: el stock NO debe haber bajado y NO debe existir
 #     ningún pedido guardado (`db.orders == {}`).
 def test_pedido_rechazado_no_cambia_estado(requests_mock, integrated_service):
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    service, db = integrated_service
+    requests_mock.post(PAY_URL, status_code=402, json={"reason": "insufficient_funds"})
+    
+    with pytest.raises(PaymentRejectedError):
+        service.place_order("SKU-1", 2, "tok_visa")
+    
+    assert db.get_stock("SKU-1") == 10
+    assert db.orders == {}
 
 
 # TODO 2: Sin stock nunca se llega a la red.
@@ -75,11 +82,22 @@ def test_pedido_rechazado_no_cambia_estado(requests_mock, integrated_service):
 #   - Verifica que se lanza `OutOfStockError` y que NO se registró ninguna
 #     petición HTTP (`requests_mock.call_count == 0`).
 def test_pedido_sin_stock_no_llama_pasarela(requests_mock, integrated_service):
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    service, db = integrated_service
+    
+    with pytest.raises(OutOfStockError):
+        service.place_order("SKU-1", 999, "tok_visa")
+
+    assert requests_mock.call_count == 0
 
 
 # TODO 3: Dos pedidos consecutivos descuentan stock de forma acumulada.
 #   - Simula 200 OK. Haz dos pedidos de 3 unidades cada uno.
 #   - Verifica que el stock final es 10 - 3 - 3 = 4 y que hay 2 pedidos guardados.
 def test_dos_pedidos_descuentan_stock_acumulado(requests_mock, integrated_service):
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    service, db = integrated_service
+    requests_mock.post(PAY_URL, status_code=200, json={"transaction_id": "tx_1"})
+    service.place_order("SKU-1", 3, "tok_visa")
+    service.place_order("SKU-1", 3, "tok_visa")
+
+    assert db.get_stock("SKU-1") == 4
+    assert len(db.orders) == 2
