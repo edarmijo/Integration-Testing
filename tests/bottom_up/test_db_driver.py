@@ -75,7 +75,8 @@ def test_fake_db_lee_estado_inicial(fake_db):
 #     `fake_db.get_stock("SKU-1")` ahora devuelva ese mismo valor (7).
 #     (Un Mock no haría esto solo: aquí el estado se guarda de verdad.)
 def test_fake_db_actualiza_stock(fake_db):
-    pytest.skip("TODO pendiente: completa este test (Integrante responsable).")
+    fake_db.update_stock("SKU-1", 7)
+    assert fake_db.get_stock("SKU-1") == 7
 
 
 # TODO 2: Guardado de pedidos.
